@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Awqaf Plus — Editable UML Studio</title>
+<style>
+:root{--ink:#18213a;--muted:#65708a;--purple:#4e38a5;--line:#d8deeb;--bg:#f4f6fb;--panel:#fff}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:linear-gradient(110deg,#2e1c63,#5845b7);color:#fff;padding:17px 22px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:12px;background:#fff;color:#4e38a5;display:grid;place-items:center;font-size:20px;font-weight:900}.brand h1{font-size:22px;margin:0}.brand p{margin:2px 0 0;color:#e3ddff;font-size:12px}
+button,select,input,textarea{font:inherit}button{border:1px solid #d5daea;background:#fff;color:#2e3650;border-radius:9px;padding:8px 11px;cursor:pointer;font-weight:700}button:hover{filter:brightness(.97)}button.primary{background:#4e38a5;color:#fff;border-color:#4e38a5}button.danger{color:#b42318}.header-btn{background:#ffffff16;border-color:#ffffff55;color:white}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap}.tabs{display:flex;gap:8px;padding:14px 18px 0}.tab{border-radius:10px 10px 0 0;padding:11px 17px}.tab.active{background:#4e38a5;color:#fff;border-color:#4e38a5}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px;padding:0 18px 18px}.workspace{min-width:0;background:white;border:1px solid var(--line);border-radius:0 14px 14px 14px;overflow:hidden;box-shadow:0 6px 22px #1d2a4a0a}.canvas-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 13px;border-bottom:1px solid var(--line);background:#fbfcff}.canvas-tools .group{display:flex;gap:6px;flex-wrap:wrap}.hint{color:var(--muted);font-size:12px}.canvas-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:530px;background:#f8faff}.canvas-scroll svg{display:block;background:white;min-width:850px;touch-action:none}
+.side{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;height:max-content;position:sticky;top:12px;box-shadow:0 6px 22px #1d2a4a0a}.side h2{font-size:17px;margin:0 0 3px}.side .sub{color:var(--muted);font-size:12px;margin:0 0 14px}.field{display:grid;gap:5px;margin:12px 0}.field label{font-size:12px;color:#4c5670;font-weight:800}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd6e5;border-radius:8px;padding:9px;background:white;color:var(--ink)}.field textarea{resize:vertical;min-height:64px}.color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field input[type=color]{height:39px;padding:3px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.side-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.side-actions button{flex:1}.empty{padding:17px;border:1px dashed #c8cfe0;border-radius:10px;color:var(--muted);font-size:13px;background:#fafbff}.section-title{font-weight:850;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#78819a;margin-top:17px}
+footer{padding:0 20px 20px;color:var(--muted);font-size:12px}.selected{filter:drop-shadow(0 0 3px #8067e5)}.node{cursor:move}.node:focus{outline:none}.mini{font-size:12px;padding:6px 8px}.status{font-size:12px;color:#4f38a5;font-weight:700}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static}.canvas-scroll{max-height:60vh;min-height:430px}.tabs{padding-left:10px}.layout{padding:0 10px 14px}header{padding:14px}.brand h1{font-size:19px}}
+@media print{header,.tabs,.canvas-tools,.side,footer{display:none!important}.layout{display:block;padding:0}.canvas-scroll{max-height:none;overflow:visible}.canvas-scroll svg{min-width:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">أ+</div><div><h1>Awqaf Plus — UML Studio</h1><p data-en="Editable diagrams · click any item to customize it" data-ar="مخططات قابلة للتعديل · اضغط على أي عنصر لتخصيصه">Editable diagrams · click any item to customize it</p></div></div>
+ <div class="toolbar"><button class="header-btn" id="language">العربية</button><button class="header-btn" id="saveProject">Save project</button><button class="header-btn" id="loadProject">Open project</button><button class="header-btn" id="exportSvg">Export SVG</button><button class="header-btn" onclick="window.print()" data-en="Print / PDF" data-ar="طباعة / PDF">Print / PDF</button><input id="projectFile" type="file" accept=".json,application/json" hidden></div>
+</header>
+<nav class="tabs"><button class="tab active" data-diagram="sequence" data-en="Sequence Diagram" data-ar="مخطط التسلسل">Sequence Diagram</button><button class="tab" data-diagram="class" data-en="Class Diagram" data-ar="مخطط الكلاسات">Class Diagram</button></nav>
+<div class="layout">
+ <section class="workspace">
+  <div class="canvas-tools">
+   <div class="group"><button id="addRect" class="mini" data-en="+ Rectangle" data-ar="+ مستطيل">+ Rectangle</button><button id="addEllipse" class="mini" data-en="+ Ellipse" data-ar="+ شكل بيضاوي">+ Ellipse</button><button id="addDiamond" class="mini" data-en="+ Diamond" data-ar="+ معين">+ Diamond</button><button id="addText" class="mini" data-en="+ Text" data-ar="+ نص">+ Text</button><button id="addLine" class="mini" data-en="+ Connector" data-ar="+ خط رابط">+ Connector</button></div>
+   <div class="group"><button id="zoomOut" class="mini">−</button><span id="zoomLabel" class="hint">100%</span><button id="zoomIn" class="mini">+</button><button id="reset" class="mini" data-en="Reset diagram" data-ar="إعادة ضبط المخطط">Reset diagram</button></div>
+  </div>
+  <div class="canvas-scroll" id="canvasScroll"><svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1250" height="790" viewBox="0 0 1250 790" aria-label="Editable UML diagram"></svg></div>
+ </section>
+ <aside class="side">
+  <h2 data-en="Edit selected item" data-ar="تعديل العنصر المحدد">Edit selected item</h2><p class="sub" data-en="Select a shape, label, class, or connector in the diagram." data-ar="حدد شكلاً أو نصاً أو كلاساً أو خطاً في المخطط.">Select a shape, label, class, or connector in the diagram.</p>
+  <div id="noSelection" class="empty" data-en="Nothing selected yet. Click an object in the drawing to edit its text, shape, fill, outline, size, or position." data-ar="لم يتم تحديد عنصر. اضغط على عنصر في الرسم لتعديل النص أو الشكل أو اللون أو الحجم أو الموقع.">Nothing selected yet. Click an object in the drawing to edit its text, shape, fill, outline, size, or position.</div>
+  <div id="editor" class="hidden">
+   <div class="field"><label data-en="Text / label" data-ar="النص / التسمية">Text / label</label><textarea id="propText"></textarea></div>
+   <div class="field"><label data-en="Shape type" data-ar="نوع الشكل">Shape type</label><select id="propType"><option value="rect">Rectangle</option><option value="round">Rounded rectangle</option><option value="ellipse">Ellipse</option><option value="diamond">Diamond</option><option value="text">Text only</option><option value="line">Connector / line</option><option value="class">Class box</option></select></div>
+   <div class="color-row"><div class="field"><label data-en="Fill color" data-ar="لون التعبئة">Fill color</label><input id="propFill" type="color"></div><div class="field"><label data-en="Line color" data-ar="لون الحدود">Line color</label><input id="propStroke" type="color"></div></div>
+   <div class="field"><label data-en="Text color" data-ar="لون النص">Text color</label><input id="propTextColor" type="color"></div>
+   <div class="two"><div class="field"><label data-en="Width" data-ar="العرض">Width</label><input id="propW" type="number" min="20" max="1100"></div><div class="field"><label data-en="Height" data-ar="الارتفاع">Height</label><input id="propH" type="number" min="12" max="700"></div></div>
+   <div class="two"><div class="field"><label>X</label><input id="propX" type="number" min="0" max="1250"></div><div class="field"><label>Y</label><input id="propY" type="number" min="0" max="790"></div></div>
+   <div class="field"><label data-en="Font size" data-ar="حجم الخط">Font size</label><input id="propFont" type="number" min="8" max="36"></div>
+   <div class="side-actions"><button id="apply" class="primary" data-en="Apply changes" data-ar="تطبيق التعديلات">Apply changes</button><button id="delete" class="danger" data-en="Delete" data-ar="حذف">Delete</button></div>
+  </div>
+  <div class="section-title" data-en="Quick help" data-ar="مساعدة سريعة">Quick help</div>
+  <p class="hint" data-en="• Click an item to select it.<br>• Drag items to move them.<br>• Edit the text and colors here.<br>• Save project downloads an editable JSON file.<br>• Export SVG saves the current drawing." data-ar="• اضغط على عنصر لتحديده.<br>• اسحب العنصر لتحريكه.<br>• عدّل النص والألوان من هنا.<br>• حفظ المشروع ينزّل ملف JSON قابل لإعادة الفتح.<br>• تصدير SVG يحفظ الرسم الحالي.">• Click an item to select it.<br>• Drag items to move them.<br>• Edit the text and colors here.<br>• Save project downloads an editable JSON file.<br>• Export SVG saves the current drawing.</p>
+ </aside>
+</div>
+<footer data-en="Note: This is an editable academic draft based on the Awqaf Plus diagrams provided. Review class names and relationships against your project requirements." data-ar="ملاحظة: هذا نموذج أكاديمي قابل للتعديل مبني على مخططات أوقاف بلس المرسلة. راجع أسماء الكلاسات والعلاقات وفق متطلبات مشروعك.">Note: This is an editable academic draft based on the Awqaf Plus diagrams provided. Review class names and relationships against your project requirements.</footer>
+<script>
+const $=id=>document.getElementById(id);
+let lang='en', current='sequence', selected=null, zoom=1, nextId=1, models={sequence:[],class:[]};
+const colors={blue:'#b9e8ff',purple:'#e2d5ff',green:'#ccefe2',orange:'#ffe0a8',pink:'#ffd8e8',white:'#ffffff',ink:'#17223b',stroke:'#4b5874'};
+function item(type,text,x,y,w,h,fill=colors.blue,stroke=colors.stroke,extra={}){return {id:'i'+nextId++,type,text,x,y,w,h,fill,stroke,textColor:colors.ink,fontSize:14,...extra};}
+function line(x1,y1,x2,y2,text=''){return item('line',text,x1,y1,x2-x1,y2-y1,'#ffffff',colors.stroke,{x2,y2,fill:'#ffffff'});}
+function seed(){
+ nextId=1;
+ let s=[];
+ // title and lifelines
+ s.push(item('text','Awqaf Plus — Account Registration & Subscription',28,20,930,30,'#ffffff','#ffffff',{fontSize:22,textColor:'#30216f'}));
+ const xs=[100,275,450,625,800,975,1140], names=['User','Website UI','Auth Service','OTP Service','Subscription','Database','Dashboard'];
+ names.forEach((n,i)=>{s.push(item('round',n,xs[i]-52,72,104,40,['#eee8ff','#dff1ff','#e0f5e8','#fff0d7'][i%4], '#7a82a1',{fontSize:13}));s.push(line(xs[i],112,xs[i],740));});
+ const msg=(x1,y1,x2,y2,t,dash=false)=>s.push(line(x1,y1,x2,y2,t),item('text',t,Math.min(x1,x2)+5,y1-19,Math.max(110,Math.abs(x2-x1)-10),18,'#fff','#fff',{fontSize:12,textColor:'#25314f',dash}));
+ msg(100,155,275,155,'1. Enter registration details');msg(275,200,450,200,'2. Create account');msg(450,245,800,245,'3. Save user information');msg(800,277,450,277,'4. Account created');msg(450,320,625,320,'5. Send OTP');msg(625,352,100,352,'6. OTP code',true);
+ s.push(item('round','LOOP — Until OTP is valid',35,385,1180,155,'#f5f2ff','#9c8adf',{fontSize:13,textColor:'#4e38a5'}));
+ msg(100,420,275,420,'7. Enter OTP');msg(275,452,450,452,'8. Verify OTP');msg(450,484,625,484,'9. Validate code');msg(625,516,450,516,'10. Valid / Invalid',true);msg(450,555,275,555,'11. Show error',true);msg(275,583,100,583,'12. Retry OTP',true);
+ msg(100,615,275,615,'13. Select subscription');msg(275,647,625,647,'14. Request subscription');msg(625,679,800,679,'15. Save subscription');msg(800,707,625,707,'16. Subscription saved',true);msg(100,735,275,735,'17. Open dashboard');
+ models.sequence=s;
+ let c=[];
+ c.push(item('text','Awqaf Plus — Core Classes',25,18,700,32,'#fff','#fff',{fontSize:22,textColor:'#30216f'}));
+ const cls=(title,body,x,y,w,h,fill)=>item('class',title+'\\n'+body,x,y,w,h,fill,'#6d6c9c',{fontSize:13});
+ c.push(cls('User','+ userId: int\\n+ name: string\\n+ email: string\\n+ createAccount()\\n+ login()\\n+ verifyOTP()',35,90,190,190,'#e9e2ff'));
+ c.push(cls('Subscription','+ subscriptionId: int\\n+ planType: string\\n+ status: string\\n+ choosePlan()\\n+ cancelSubscription()',300,90,210,180,'#dff1ff'));
+ c.push(cls('WaqfProfile','+ waqfId: int\\n+ waqfName: string\\n+ description: string\\n+ createProfile()\\n+ updateProfile()',580,90,220,180,'#ffdce9'));
+ c.push(cls('WaqfDocument','+ documentId: int\\n+ documentType: string\\n+ filePath: string\\n+ uploadDocument()',900,55,230,160,'#d9f6e7'));
+ c.push(cls('FamilyMember','+ memberId: int\\n+ name: string\\n+ relationship: string\\n+ addMember()',900,250,230,150,'#fff0c9'));
+ c.push(cls('DrainageGroup','+ groupId: int\\n+ groupName: string\\n+ createGroup()\\n+ editGroup()',35,440,220,155,'#e7e1ff'));
+ c.push(cls('Building','+ buildingId: int\\n+ buildingName: string\\n+ address: string\\n+ updateBuilding()',350,440,220,155,'#d6f7f0'));
+ c.push(cls('Tenant','+ tenantId: int\\n+ name: string\\n+ contactInfo: string\\n+ updateTenant()',660,440,220,155,'#ffdeeb'));
+ c.push(cls('OTPVerification','+ otpId: int\\n+ code: string\\n+ expiryTime: datetime\\n+ validateCode()',950,490,240,155,'#dff4ff'));
+ const rel=(x1,y1,x2,y2,t)=>{c.push(line(x1,y1,x2,y2,t));if(t)c.push(item('text',t,(x1+x2)/2-50,(y1+y2)/2-18,100,18,'#fff','#fff',{fontSize:12,textColor:'#3b4662'}));};
+ rel(225,160,300,160,'1 selects 0..*');rel(510,170,580,170,'1 owns 0..1');rel(800,135,900,135,'contains');rel(800,200,900,315,'manages');rel(680,270,255,440,'manages');rel(680,270,460,440,'includes');rel(570,515,660,515,'has');rel(225,250,950,520,'verifies');
+ models.class=c;
+}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function svgEl(tag,attrs={},content=''){return `<${tag} ${Object.entries(attrs).map(([k,v])=>`${k}="${esc(v)}"`).join(' ')}>${content}</${tag}>`;}
+function wrapText(text,x,y,w,fontSize,color,align='middle'){
+ const lines=String(text||'').split('\n');const lh=fontSize*1.35;let out='';
+ const total=lines.length*lh;let yy=y-total/2+lh*.8;
+ lines.forEach(line=>{out+=`<text x="${x+w/2}" y="${yy}" font-size="${fontSize}" text-anchor="${align}" fill="${color}" font-weight="${/^[A-Z][A-Za-z]+$/.test(line)?700:500}">${esc(line)}</text>`;yy+=lh;});
+ return out;
+}
+function render(){
+ const svg=$('canvas'), arr=models[current];let out=`<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#53617c"/></marker></defs><rect x="0" y="0" width="1250" height="790" fill="#ffffff"/>`;
+ arr.forEach(o=>{
+ let isSel=o.id===selected, cl=`node ${isSel?'selected':''}`, stroke=isSel?'#6b4eff':o.stroke, sw=isSel?3:1.5, body='';
+ if(o.type==='line'){
+   const x2=o.x2??o.x+o.w,y2=o.y2??o.y+o.h;
+   body=`<line x1="${o.x}" y1="${o.y}" x2="${x2}" y2="${y2}" stroke="${o.stroke}" stroke-width="${isSel?3:1.7}" ${o.dash?'stroke-dasharray="6 4"':''} marker-end="url(#arrow)"/>`;
+   if(o.text)body+=`<text x="${(o.x+x2)/2}" y="${(o.y+y2)/2-7}" font-size="${o.fontSize||12}" text-anchor="middle" fill="${o.textColor||colors.ink}">${esc(o.text)}</text>`;
+ } else if(o.type==='text'){
+   body=`<rect x="${o.x-4}" y="${o.y-4}" width="${o.w+8}" height="${o.h+8}" rx="4" fill="${isSel?'#f1edff':'#ffffff'}" fill-opacity="${isSel?1:0}"/>`+wrapText(o.text,o.x,o.y+o.h/2,o.w,o.fontSize,o.textColor);
+ } else if(o.type==='class'){
+   let lines=String(o.text).split('\n'), title=lines.shift(), bodyText=lines.join('\n');
+   body=`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="7" fill="${o.fill}" stroke="${stroke}" stroke-width="${sw}"/><path d="M${o.x},${o.y+35} H${o.x+o.w}" stroke="${stroke}"/><text x="${o.x+o.w/2}" y="${o.y+23}" text-anchor="middle" font-size="${o.fontSize+1}" font-weight="800" fill="${o.textColor}">${esc(title)}</text>`;
+   let yy=o.y+53;bodyText.split('\n').forEach((line,i)=>{if(yy<o.y+o.h-7){body+=`<text x="${o.x+10}" y="${yy}" font-size="${Math.min(o.fontSize,13)}" fill="${o.textColor}">${esc(line)}</text>`;yy+=18;}});
+ } else {
+   if(o.type==='ellipse')body=`<ellipse cx="${o.x+o.w/2}" cy="${o.y+o.h/2}" rx="${o.w/2}" ry="${o.h/2}" fill="${o.fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+   else if(o.type==='diamond')body=`<polygon points="${o.x+o.w/2},${o.y} ${o.x+o.w},${o.y+o.h/2} ${o.x+o.w/2},${o.y+o.h} ${o.x},${o.y+o.h/2}" fill="${o.fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+   else body=`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${o.type==='round'?12:3}" fill="${o.fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+   body+=wrapText(o.text,o.x,o.y+o.h/2,o.w,o.fontSize,o.textColor);
+ }
+ out+=`<g class="${cl}" data-id="${o.id}" tabindex="0">${body}</g>`;
+ });
+ svg.innerHTML=out;
+ svg.querySelectorAll('[data-id]').forEach(g=>{
+   g.addEventListener('click',e=>{e.stopPropagation();select(g.dataset.id)});
+   g.addEventListener('pointerdown',e=>{if(e.button!==0)return;const o=find(g.dataset.id);if(!o)return;select(o.id);const p=svgPoint(e,svg);const start={x:p.x,y:p.y,ox:o.x,oy:o.y,ox2:o.x2,oy2:o.y2};g.setPointerCapture?.(e.pointerId);
+    const move=ev=>{const q=svgPoint(ev,svg),dx=q.x-start.x,dy=q.y-start.y;o.x=Math.max(0,Math.min(1240,start.ox+dx));o.y=Math.max(0,Math.min(780,start.oy+dy));if(o.type==='line'&&o.x2!==undefined){o.x2=start.ox2+dx;o.y2=start.oy2+dy;}render();};
+    const up=()=>{svg.removeEventListener('pointermove',move);svg.removeEventListener('pointerup',up);};svg.addEventListener('pointermove',move);svg.addEventListener('pointerup',up,{once:true});
+   });
+ });
+ svg.onclick=e=>{if(e.target===svg){selected=null;updateEditor();render();}};
+}
+function svgPoint(e,svg){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=svg.getScreenCTM();return p.matrixTransform(m.inverse());}
+function find(id){return models[current].find(o=>o.id===id)}
+function select(id){selected=id;updateEditor();render()}
+function updateEditor(){
+ const o=find(selected);$('noSelection').classList.toggle('hidden',!!o);$('editor').classList.toggle('hidden',!o);if(!o)return;
+ $('propText').value=o.text||'';$('propType').value=o.type;$('propFill').value=validColor(o.fill,'#ffffff');$('propStroke').value=validColor(o.stroke,'#53617c');$('propTextColor').value=validColor(o.textColor,'#17223b');$('propW').value=Math.round(o.w||100);$('propH').value=Math.round(o.h||30);$('propX').value=Math.round(o.x||0);$('propY').value=Math.round(o.y||0);$('propFont').value=o.fontSize||14;
+}
+function validColor(c,fallback){return /^#[0-9a-f]{6}$/i.test(c||'')?c:fallback}
+$('apply').onclick=()=>{const o=find(selected);if(!o)return;o.text=$('propText').value;o.type=$('propType').value;o.fill=$('propFill').value;o.stroke=$('propStroke').value;o.textColor=$('propTextColor').value;o.w=+ $('propW').value||100;o.h=+ $('propH').value||30;o.x=+ $('propX').value||0;o.y=+ $('propY').value||0;o.fontSize=+ $('propFont').value||14;if(o.type==='line'){o.x2=o.x+o.w;o.y2=o.y+o.h;}render();};
+$('delete').onclick=()=>{models[current]=models[current].filter(o=>o.id!==selected);selected=null;updateEditor();render();};
+function add(type){let o=item(type,type==='line'?'Connector':'Double-click? Edit this text',180+Math.random()*150,170+Math.random()*130, type==='line'?180:170,type==='line'?0:65,'#e4f2ff','#53617c',{fontSize:14,textColor:'#17223b'});if(type==='text')o.text='Edit this text';if(type==='line'){o.x2=o.x+o.w;o.y2=o.y;o.h=0;}models[current].push(o);select(o.id);}
+$('addRect').onclick=()=>add('rect');$('addEllipse').onclick=()=>add('ellipse');$('addDiamond').onclick=()=>add('diamond');$('addText').onclick=()=>add('text');$('addLine').onclick=()=>add('line');
+document.querySelectorAll('[data-diagram]').forEach(b=>b.onclick=()=>{current=b.dataset.diagram;document.querySelectorAll('[data-diagram]').forEach(x=>x.classList.toggle('active',x===b));selected=null;updateEditor();render();});
+$('zoomIn').onclick=()=>setZoom(zoom+.1);$('zoomOut').onclick=()=>setZoom(zoom-.1);function setZoom(z){zoom=Math.max(.5,Math.min(1.5,z));$('canvas').style.width=(1250*zoom)+'px';$('canvas').style.height=(790*zoom)+'px';$('zoomLabel').textContent=Math.round(zoom*100)+'%';}
+$('reset').onclick=()=>{if(confirm(lang==='en'?'Reset both diagrams to the original draft? Unsaved edits will be lost.':'إعادة المخططين إلى النسخة الأصلية؟ ستفقد التعديلات غير المحفوظة.')){seed();selected=null;setZoom(1);updateEditor();render();}};
+function download(name,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+$('saveProject').onclick=()=>download('awqaf-plus-editable-project.json',JSON.stringify({version:1,models,nextId},null,2),'application/json');
+$('loadProject').onclick=()=>$('projectFile').click();
+$('projectFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!d.models||!d.models.sequence||!d.models.class)throw Error('Invalid project');models=d.models;nextId=d.nextId||100;selected=null;updateEditor();render();alert(lang==='en'?'Project loaded.':'تم فتح المشروع.');}catch(err){alert(lang==='en'?'Could not open this project file.':'تعذر فتح ملف المشروع.');}e.target.value='';};
+$('exportSvg').onclick=()=>{const clone=$('canvas').cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));download('awqaf-plus-'+current+'.svg',new XMLSerializer().serializeToString(clone),'image/svg+xml');};
+$('language').onclick=()=>{lang=lang==='en'?'ar':'en';document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';document.querySelectorAll('[data-en][data-ar]').forEach(el=>{if(el.tagName==='P'&&el.closest('.side'))el.innerHTML=el.dataset[lang];else el.textContent=el.dataset[lang]});$('language').textContent=lang==='en'?'العربية':'English';};
+seed();render();
+</script>
+</body></html>
